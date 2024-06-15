@@ -34,6 +34,7 @@ export const jwtParse = async (
   if (!authorization || !authorization.startsWith("Bearer ")) {
     res.status(401).send();
   }
+  //the token is the second part of the authorization header
   const token = authorization.split(" ")[1] ;
   try {
     const decoded = jwt.decode(token) as jwt.JwtPayload;

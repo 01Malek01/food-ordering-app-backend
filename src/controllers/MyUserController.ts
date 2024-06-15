@@ -22,19 +22,23 @@ export const createCurrentUser = async (req: Request, res: Response) => {
   //3) return the user object to the calling client (frontend)
 
   try {
+    //get the auth0Id from the request body
     const { auth0Id } = req.body;
+    //check if the user already exists
     const existingUser = await User.findOne({ auth0Id });
 
     if (existingUser) {
       return res.status(200).send();
     }
+
+    //create the user using auth0Id and email which will be in the body
     const newUser = await User.create(req.body);
     await newUser.save();
     res.status(201).json(newUser.toObject()); // we return the user object to the frontend
   } catch (err) {
     console.log(err);
     //we don't wanna pass the err object to the frontend as it might have sensitive information
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({ message: "Error creating user" });
   }
 };
 

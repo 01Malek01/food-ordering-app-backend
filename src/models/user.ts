@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  //we get it from te access token which is sent in the request
+  //we get it from the access token which is sent in the request
   //the id of the user stored in the auth0 database
   auth0Id: {
     type: String,
