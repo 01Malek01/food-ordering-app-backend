@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 import cloudinary from "cloudinary";
 import mongoose from "mongoose";
+import Order from "../models/order";
 
 const uploadImage = async (file: Express.Multer.File) => {
   const image = file as Express.Multer.File;
@@ -9,6 +10,46 @@ const uploadImage = async (file: Express.Multer.File) => {
   const dataURI = `data:${image.mimetype};base64,${base64Image}`;
   const uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
   return uploadResponse.url;
+};
+
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  try {
+   
+    const order = await Order.findById(req.params.orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+     const restaurant = await Restaurant.findById(order.restaurant);
+ if(restaurant?.user?._id.toString() !== req.userId){
+  return res.status(401).json({message: "Unauthorized"});
+ }
+    order.status = req.body.status;
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    console.log("====================================");
+    console.log(err);
+    console.log("====================================");
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const getMyRestaurantOrders = async (req: Request, res: Response) => {
+  try {
+    const restaurant = await Restaurant.findOne({ user: req.userId });
+    if (!restaurant) {
+      return res.status(404).json({ message: "User has no restaurant" });
+    }
+    const orders = await Order.find({ restaurant: restaurant._id })
+      .populate("user")
+      .populate("restaurant");
+    res.json(orders); // if this is empty , it will return an empty array
+  } catch (err) {
+    console.log("====================================");
+    console.log(err);
+    console.log("====================================");
+    res.status(500).json({ message: "Something went wrong" });
+  }
 };
 export const createMyRestaurant = async (req: Request, res: Response) => {
   try {

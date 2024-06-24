@@ -4,6 +4,8 @@ import {
   createMyRestaurant,
   getMyRestaurant,
   updateMyRestaurant,
+  getMyRestaurantOrders,
+  updateOrderStatus,
 } from "../controllers/MyRestaurantController";
 import { jwtCheck, jwtParse } from "../middleware/auth";
 import { validateMyRestaurantReq } from "../middleware/validation";
@@ -19,6 +21,9 @@ const upload = multer({
   },
 });
 // /api/my/restaurant
+
+router.get('/order' , jwtCheck, jwtParse, getMyRestaurantOrders);
+router.patch('/order/:orderId/status', jwtCheck, jwtParse, updateOrderStatus);
 router.get("/", jwtCheck, jwtParse, getMyRestaurant);
 //whenever there is a post req to this api endpoint it will check for image file property
 router.post(
